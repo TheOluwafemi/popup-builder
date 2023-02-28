@@ -1,6 +1,5 @@
 <script setup>
 import { reactive, onMounted, ref } from 'vue'
-import { v4 as uuid } from 'uuid'
 import AddCircle from './icons/AddCircle.vue'
 import PreviewModal from './PreviewModal.vue'
 import { toast } from 'vue3-toastify'
@@ -86,9 +85,8 @@ function addBackgroundColor() {
   }
   formValues['backgroundColor'] = []
   const newColor = {
-    id: uuid(),
+    id: 'backgroundColor',
     name: 'background color',
-    type: 'backgroundColor',
     value: '#f44336'
   }
   formValues.backgroundColor.push(newColor)
@@ -100,7 +98,7 @@ const addStarsColor = () => {
     return
   }
   formValues['starsColor'] = []
-  const newStar = { id: uuid(), name: 'stars color', type: 'starsColor', value: '#b71c1c' }
+  const newStar = { id: 'starsColor', name: 'stars color', type: 'starsColor', value: '#b71c1c' }
   formValues.starsColor.push(newStar)
 }
 
@@ -111,7 +109,7 @@ const addTitleField = () => {
   }
   formValues['titleFields'] = []
   const newTitle = {
-    id: uuid(),
+    id: 'titleFields',
     type: 'titleFields',
     name: 'title field',
     value: 'All the text and elements in this popup should be editable and draggable'
@@ -126,7 +124,7 @@ const addSubtitleField = () => {
   }
   formValues['subtitleFields'] = []
   const newSubtitle = {
-    id: uuid(),
+    id: 'subtitleFields',
     type: 'subtitleFields',
     name: 'subtitle field',
     value: 'No credit card required. No Surprises'
@@ -141,7 +139,8 @@ const addInputField = () => {
   }
   formValues['inputFields'] = []
   const newInput = {
-    name: 'inputFields',
+    id: 'inputFields',
+    name: 'Input Field',
     type: 'email',
     value: '',
     placeholder: 'Enter your email'
@@ -151,15 +150,16 @@ const addInputField = () => {
 
 const saveForm = () => {
   localStorage.setItem('form-values', JSON.stringify(formValues))
+  toast(`Form saved successfully!`, {
+    autoClose: 1000,
+    position: toast.POSITION.BOTTOM_RIGHT,
+    type: 'success',
+    theme: 'colored'
+  })
 }
 
 const showPreview = () => {
   showPreviewModal.value = true
-}
-
-const resetForm = () => {
-  Object.assign(formValues, {})
-  localStorage.removeItem('form-values')
 }
 
 const refuseSameElementError = (element) => {
@@ -174,6 +174,10 @@ const refuseSameElementError = (element) => {
 const removeField = (name) => {
   console.log(name)
   delete formValues[name]
+  const storedData = localStorage.getItem('form-values')
+  if (storedData) {
+    localStorage.setItem('form-values', JSON.stringify(formValues))
+  }
 }
 </script>
 
@@ -219,7 +223,7 @@ const removeField = (name) => {
           <input type="color" class="form-input" name="bg-color" v-model="field.value" />
 
           <div class="remove">
-            <span class="material-symbols-sharp" @click="removeField(field.type)"> delete </span>
+            <span class="material-symbols-sharp" @click="removeField(field.id)"> delete </span>
           </div>
         </div>
       </template>
@@ -230,7 +234,7 @@ const removeField = (name) => {
           <input type="color" class="form-input" name="stars-color" v-model="field.value" />
 
           <div class="remove">
-            <span class="material-symbols-sharp" @click="removeField(field.type)"> delete </span>
+            <span class="material-symbols-sharp" @click="removeField(field.id)"> delete </span>
           </div>
         </div>
       </template>
@@ -247,7 +251,7 @@ const removeField = (name) => {
           />
 
           <div class="remove">
-            <span class="material-symbols-sharp" @click="removeField(field.type)"> delete </span>
+            <span class="material-symbols-sharp" @click="removeField(field.id)"> delete </span>
           </div>
         </div>
       </template>
@@ -264,7 +268,7 @@ const removeField = (name) => {
           />
 
           <div class="remove">
-            <span class="material-symbols-sharp" @click="removeField(field.type)"> delete </span>
+            <span class="material-symbols-sharp" @click="removeField(field.id)"> delete </span>
           </div>
         </div>
       </template>
@@ -276,9 +280,6 @@ const removeField = (name) => {
             <option value="" disabled>Select input type</option>
             <option value="text">Text</option>
             <option value="email">Email</option>
-            <option value="select">Select-Options</option>
-            <option value="checkbox">Checkbox</option>
-            <option value="radio">Radio</option>
           </select>
           <input
             type="text"
@@ -296,7 +297,7 @@ const removeField = (name) => {
           />
 
           <div class="remove">
-            <span class="material-symbols-sharp" @click="removeField(field.name)"> delete </span>
+            <span class="material-symbols-sharp" @click="removeField(field.id)"> delete </span>
           </div>
         </div>
       </template>
@@ -375,14 +376,15 @@ const removeField = (name) => {
     width: 100%;
     margin: 0.7rem 0;
     background: white;
-    padding: 0.3rem 1rem;
+    padding: 1rem 1rem;
     border: 1.5px dashed lightgrey;
     border-radius: 8px;
+    position: relative;
 
     .remove {
-      display: flex;
-      width: 100%;
-      justify-content: flex-end;
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
       cursor: pointer;
     }
   }
@@ -469,7 +471,6 @@ const removeField = (name) => {
 
 .list-wrapper {
   flex: 0 0 100%;
-  // box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
 
   @media only screen and (min-width: 600px) {
     flex: 0 0 40%;
