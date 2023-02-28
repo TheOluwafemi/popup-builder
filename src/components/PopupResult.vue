@@ -1,20 +1,25 @@
 <script setup>
 import StarIcon from './icons/StarIcon.vue'
 
-defineProps(['details'])
+const props = defineProps(['details'])
+
+const otherStyles = {
+  '--outlineColor': props.details.backgroundColor[0].value
+}
 </script>
 
 <template>
   <section
     class="popup"
-    :style="{
+    :style="[otherStyles,{
+      
       backgroundColor: details.backgroundColor?.length
         ? details.backgroundColor[0].value
         : '#f44336',
-      outline: `6px solid ${
-        details.backgroundColor?.length ? details.backgroundColor[0].value : '#f44336'
-      }`
-    }"
+      // outline: `6px solid ${
+      //   details.backgroundColor?.length ? details.backgroundColor[0].value : '#f44336'
+      // }`
+    }]"
   >
     <template v-if="details.starsColor?.length">
       <div class="stars">
@@ -59,10 +64,8 @@ defineProps(['details'])
 .popup {
   width: 320px;
   height: 320px;
-  background-color: tomato;
   border-radius: 100%;
   border: 4px solid white;
-  outline: 6px solid tomato;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -71,6 +74,18 @@ defineProps(['details'])
   padding: 0.5rem 0.5rem;
   word-wrap: break-word;
   gap: 0.5rem;
+
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: -10px;
+    bottom: -10px;
+    left: -10px;
+    right: -10px;
+    border-radius: 100%;
+    border: 6px solid var(--outlineColor) ;
+  }
 
   .stars {
     display: flex;
