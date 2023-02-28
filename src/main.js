@@ -10,4 +10,3 @@ app.mount('#app')
 app.use(Vue3Toasity, {
   autoClose: 3000
 })
-// createApp(App).use(Notifications).mount('#app')

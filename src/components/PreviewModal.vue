@@ -88,12 +88,10 @@ defineProps({
 }
 
 .modal-default-button {
-  // outline: none;
   border: 1px solid lightgrey;
   cursor: pointer;
   border-radius: 4px;
   padding: 0.3rem 1.5rem;
-  // cursor: pointer;
 }
 
 /*

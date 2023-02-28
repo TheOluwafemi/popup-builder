@@ -1,16 +1,28 @@
 # popup-vue
 
-This template should help get you started developing with Vue 3 in Vite.
+This a simple web popup builder built with Vue.
 
-## Recommended IDE Setup
+### Implementation
+
+The app features a main form-builder, with elements and a blank form section. Elements are in a list and each element in the list can be added to the form by clicking on it or by dragging it into the form area.
+At any point the user can preview the form to view progress or what the end result will be. This builder can be extended to support more types of form elements .
+
+### Main features
+
+- adding elements to form (draggable elements)
+- removing an element from the form
+- saving form
+- persist form data between reloads/sessions
+
+### Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
-## Customize configuration
+### Customize configuration
 
 See [Vite Configuration Reference](https://vitejs.dev/config/).
 
-## Project Setup
+### Project Setup
 
 ```sh
 npm install

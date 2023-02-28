@@ -19,9 +19,6 @@ const otherStyles = {
         backgroundColor: details.backgroundColor?.length
           ? details.backgroundColor[0].value
           : '#f44336'
-        // outline: `6px solid ${
-        //   details.backgroundColor?.length ? details.backgroundColor[0].value : '#f44336'
-        // }`
       }
     ]"
   >

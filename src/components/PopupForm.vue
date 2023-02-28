@@ -428,16 +428,13 @@ const removeField = (name) => {
     cursor: pointer;
 
     &-secondary {
-      // background: #3f51b5;
       background: transparent;
       color: #111;
-      // border: 1px solid #3f51b5;
       border: none;
     }
 
     &-primary {
       background: #3f51b5;
-      // background: #009688;
       color: white;
       border: 1px solid #3f51b5;
     }
@@ -478,8 +475,6 @@ const removeField = (name) => {
     flex: 0 0 30%;
   }
   .title {
-    // padding: 1rem;
-    // border-bottom: 1px solid lightgrey;
     color: #673ab7;
     font-weight: bold;
     .desc {
