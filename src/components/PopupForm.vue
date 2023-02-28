@@ -57,7 +57,6 @@ const addFormItem = (item) => {
       addSubtitleField()
       break
     default:
-      console.log('Please try again...')
       break
   }
 }
@@ -172,7 +171,6 @@ const refuseSameElementError = (element) => {
 }
 
 const removeField = (name) => {
-  console.log(name)
   delete formValues[name]
   const storedData = localStorage.getItem('form-values')
   if (storedData) {
