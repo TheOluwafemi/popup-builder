@@ -1,6 +1,13 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import 'vue3-toastify/dist/index.css'
+import Vue3Toasity from 'vue3-toastify'
 
 import './assets/main.css'
 
-createApp(App).mount('#app')
+const app = createApp(App)
+app.mount('#app')
+app.use(Vue3Toasity, {
+  autoClose: 3000
+})
+// createApp(App).use(Notifications).mount('#app')
