@@ -12,7 +12,12 @@ import HeaderComponent from './components/HeaderComponent.vue'
 
 <style lang="scss" scoped>
 .main {
-  padding: 4rem 2rem;
+  max-width: 1440px;
+  padding: 4rem 1rem;
   width: 100%;
+
+  @media only screen and (min-width: 768px) {
+    padding: 4rem 2rem;
+  }
 }
 </style>

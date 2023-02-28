@@ -69,7 +69,7 @@ const addButtonField = () => {
   }
   formValues['buttons'] = []
   const newButton = {
-    id: uuid(),
+    id: 'buttons',
     name: 'button',
     type: '',
     text: 'signup now',
@@ -85,7 +85,12 @@ function addBackgroundColor() {
     return
   }
   formValues['backgroundColor'] = []
-  const newColor = { id: uuid(), name: 'background color', value: '#f44336' }
+  const newColor = {
+    id: uuid(),
+    name: 'background color',
+    type: 'backgroundColor',
+    value: '#f44336'
+  }
   formValues.backgroundColor.push(newColor)
 }
 
@@ -95,7 +100,7 @@ const addStarsColor = () => {
     return
   }
   formValues['starsColor'] = []
-  const newStar = { id: uuid(), name: 'stars color', value: '#b71c1c' }
+  const newStar = { id: uuid(), name: 'stars color', type: 'starsColor', value: '#b71c1c' }
   formValues.starsColor.push(newStar)
 }
 
@@ -107,6 +112,7 @@ const addTitleField = () => {
   formValues['titleFields'] = []
   const newTitle = {
     id: uuid(),
+    type: 'titleFields',
     name: 'title field',
     value: 'All the text and elements in this popup should be editable and draggable'
   }
@@ -121,6 +127,7 @@ const addSubtitleField = () => {
   formValues['subtitleFields'] = []
   const newSubtitle = {
     id: uuid(),
+    type: 'subtitleFields',
     name: 'subtitle field',
     value: 'No credit card required. No Surprises'
   }
@@ -134,7 +141,7 @@ const addInputField = () => {
   }
   formValues['inputFields'] = []
   const newInput = {
-    name: 'popup-input',
+    name: 'inputFields',
     type: 'email',
     value: '',
     placeholder: 'Enter your email'
@@ -153,7 +160,6 @@ const showPreview = () => {
 const resetForm = () => {
   Object.assign(formValues, {})
   localStorage.removeItem('form-values')
-  console.log(formValues)
 }
 
 const refuseSameElementError = (element) => {
@@ -163,6 +169,11 @@ const refuseSameElementError = (element) => {
     type: 'error',
     theme: 'colored'
   })
+}
+
+const removeField = (name) => {
+  console.log(name)
+  delete formValues[name]
 }
 </script>
 
@@ -187,19 +198,29 @@ const refuseSameElementError = (element) => {
           @dragstart="startDrag($event, item.type)"
         >
           <p>{{ item.name }}</p>
-          <add-circle />
+          <span
+            class="material-symbols-sharp"
+            style="
+               {
+                cursor: 'move';
+              }
+            "
+          >
+            drag_indicator
+          </span>
         </li>
       </ul>
     </div>
 
     <form class="form" @drop="onDrop($event, item)" @dragenter.prevent @dragover.prevent>
-      <div v-if="Object.keys(formValues).length">
-        <small @click.prevent="resetForm">Reset Form</small>
-      </div>
       <template v-if="formValues.backgroundColor?.length">
         <div v-for="(field, index) in formValues.backgroundColor" :key="index" class="form-field">
           <label class="form-label" for="bg-color">{{ field.name }}</label>
           <input type="color" class="form-input" name="bg-color" v-model="field.value" />
+
+          <div class="remove">
+            <span class="material-symbols-sharp" @click="removeField(field.type)"> delete </span>
+          </div>
         </div>
       </template>
 
@@ -207,6 +228,10 @@ const refuseSameElementError = (element) => {
         <div v-for="(field, index) in formValues.starsColor" :key="index" class="form-field">
           <label class="form-label" for="stars-color">{{ field.name }}</label>
           <input type="color" class="form-input" name="stars-color" v-model="field.value" />
+
+          <div class="remove">
+            <span class="material-symbols-sharp" @click="removeField(field.type)"> delete </span>
+          </div>
         </div>
       </template>
 
@@ -220,6 +245,10 @@ const refuseSameElementError = (element) => {
             v-model="field.value"
             placeholder="Enter popup title"
           />
+
+          <div class="remove">
+            <span class="material-symbols-sharp" @click="removeField(field.type)"> delete </span>
+          </div>
         </div>
       </template>
 
@@ -233,6 +262,10 @@ const refuseSameElementError = (element) => {
             v-model="field.value"
             placeholder="Enter popup subtitle"
           />
+
+          <div class="remove">
+            <span class="material-symbols-sharp" @click="removeField(field.type)"> delete </span>
+          </div>
         </div>
       </template>
 
@@ -261,6 +294,10 @@ const refuseSameElementError = (element) => {
             v-model="field.placeholder"
             :placeholder="`Enter input placeholder`"
           />
+
+          <div class="remove">
+            <span class="material-symbols-sharp" @click="removeField(field.name)"> delete </span>
+          </div>
         </div>
       </template>
 
@@ -279,6 +316,10 @@ const refuseSameElementError = (element) => {
 
           <label class="form-label label-sm">Text color</label>
           <input type="color" class="form-input" :name="field.name" v-model="field.color" />
+
+          <div class="remove">
+            <span class="material-symbols-sharp" @click="removeField(field.id)"> delete </span>
+          </div>
         </div>
       </template>
 
@@ -311,22 +352,39 @@ const refuseSameElementError = (element) => {
   justify-content: space-evenly;
   gap: 2rem;
   align-items: flex-start;
+  flex-wrap: wrap;
 }
 .form {
-  flex: 0 0 50%;
+  flex: 0 0 100%;
+  border-radius: 4px;
   min-height: 20rem;
   background: #fafafa;
   box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
-  padding: 2rem 1rem;
+  padding: 1rem;
   width: 100%;
+
+  @media only screen and (min-width: 600px) {
+    flex: 0 0 55%;
+  }
+
+  @media only screen and (min-width: 1024px) {
+    flex: 0 0 56%;
+  }
 
   &-field {
     width: 100%;
-    margin: 1rem 0;
+    margin: 0.7rem 0;
     background: white;
-    padding: 0.5rem 1rem;
-    border: 1px solid lightgrey;
+    padding: 0.3rem 1rem;
+    border: 1.5px dashed lightgrey;
     border-radius: 8px;
+
+    .remove {
+      display: flex;
+      width: 100%;
+      justify-content: flex-end;
+      cursor: pointer;
+    }
   }
 
   &-label {
@@ -410,13 +468,20 @@ const refuseSameElementError = (element) => {
 }
 
 .list-wrapper {
-  flex: 0 0 30%;
-  box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+  flex: 0 0 100%;
+  // box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
 
+  @media only screen and (min-width: 600px) {
+    flex: 0 0 40%;
+  }
+
+  @media only screen and (min-width: 1024px) {
+    flex: 0 0 30%;
+  }
   .title {
-    padding: 1rem;
-    border-bottom: 1px solid lightgrey;
-    color: darkblue;
+    // padding: 1rem;
+    // border-bottom: 1px solid lightgrey;
+    color: #673ab7;
     font-weight: bold;
     .desc {
       display: block;
@@ -429,8 +494,10 @@ const refuseSameElementError = (element) => {
     border-radius: 0px;
 
     &-item {
+      margin-top: 1rem;
       padding: 1rem;
-      border-bottom: 1px solid lightgrey;
+      border: 1px solid #eeeeee;
+      border-radius: 8px;
       cursor: pointer;
       text-transform: capitalize;
       font-weight: 500;
@@ -438,10 +505,7 @@ const refuseSameElementError = (element) => {
       display: flex;
       justify-content: space-between;
       align-items: center;
-
-      &:last-of-type {
-        border-bottom: 0;
-      }
+      box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     }
   }
 }

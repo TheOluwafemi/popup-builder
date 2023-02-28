@@ -42,13 +42,25 @@ defineProps({
 }
 
 .modal-container {
-  width: 50%;
+  width: 100%;
   margin: auto;
-  // padding: 20px 30px;
   background-color: #fff;
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
+
+  
+  @media only screen and (min-width: 600px) {
+    flex: 0 0 80%;
+  }
+
+  @media only screen and (min-width: 768px) {
+    flex: 0 0 60%;
+  }
+
+  @media only screen and (min-width: 1024px) {
+    flex: 0 0 50%;
+  }
 }
 
 .modal-header {
