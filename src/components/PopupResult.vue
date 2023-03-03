@@ -27,32 +27,40 @@ const otherStyles = {
     </template>
 
     <template v-if="info.titleFields?.length">
-      <div class="title">
-        <h3 contenteditable="true">{{ info.titleFields[0].value }}</h3>
+      <div v-for="item, index in info.titleFields" :key="index" class="title">
+        <h3>{{ item.value }}</h3>
       </div>
     </template>
 
     <template v-if="info.inputFields?.length">
       <input
+        v-for="(item, index) in info.inputFields"
+        :key="index"
         class="input"
-        :type="info.inputFields[0].type"
-        :value="info.inputFields[0].value"
-        :placeholder="info.inputFields[0].placeholder"
+        :type="item.type"
+        :value="item.value"
+        :placeholder="item.placeholder"
       />
     </template>
 
     <template v-if="info.buttons?.length">
       <button
+        v-for="(item, index) in info.buttons"
+        :key="index"
         class="btn"
-        contenteditable="true"
-        :style="{ backgroundColor: info.buttons[0].background, color: info.buttons[0].color }"
+        :style="{ backgroundColor: item.background, color: item.color }"
       >
-        {{ info.buttons[0].value }}
+        {{ item.value }}
       </button>
     </template>
 
     <template v-if="info.subtitleFields?.length">
-      <small class="subtitle" contenteditable="true">{{ info.subtitleFields[0].value }}</small>
+      <small
+        v-for="(item, index) in info.subtitleFields"
+        :key="index"
+        class="subtitle"
+        >{{ item.value }}</small
+      >
     </template>
   </section>
 </template>

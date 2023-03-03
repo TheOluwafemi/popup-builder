@@ -13,6 +13,7 @@ import HeaderComponent from './components/HeaderComponent.vue'
 <style lang="scss" scoped>
 .main {
   max-width: 1440px;
+  margin: 0 auto;
   padding: 4rem 1rem;
   width: 100%;
 

@@ -362,7 +362,7 @@ const saveField = (event, item) => {
   display: flex;
   justify-content: space-evenly;
   gap: 2rem;
-  align-items: flex-start;
+  align-items: center;
   flex-wrap: wrap;
 }
 
