@@ -3,7 +3,8 @@ import PopupResult from './PopupResult.vue'
 
 defineProps({
   show: Boolean,
-  popupInfo: Object
+  popupInfo: Object,
+  popupStyle: Object
 })
 </script>
 
@@ -16,8 +17,7 @@ defineProps({
         </div>
 
         <div class="modal-body">
-          <popup-result :details="popupInfo" />
-          <!-- <slot name="body">default body</slot> -->
+          <popup-result :info="popupInfo" :style="popupStyle" />
         </div>
 
         <div class="modal-footer">

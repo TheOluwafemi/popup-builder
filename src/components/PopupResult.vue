@@ -1,12 +1,10 @@
 <script setup>
 import StarIcon from './icons/StarIcon.vue'
 
-const props = defineProps(['details'])
+const props = defineProps(['info', 'style'])
 
 const otherStyles = {
-  '--outlineColor': props.details.backgroundColor?.length
-    ? props.details.backgroundColor[0].value
-    : '#f44336'
+  '--outlineColor': props.style ? props.style.backgroundColor.value : '#f44336'
 }
 </script>
 
@@ -16,47 +14,45 @@ const otherStyles = {
     :style="[
       otherStyles,
       {
-        backgroundColor: details.backgroundColor?.length
-          ? details.backgroundColor[0].value
-          : '#f44336'
+        backgroundColor: style.backgroundColor ? style.backgroundColor.value : '#f44336'
       }
     ]"
   >
-    <template v-if="details.starsColor?.length">
+    <template v-if="style.starsColor.active">
       <div class="stars">
-        <star-icon :height="24" :width="24" :color="details.starsColor[0].value" />
-        <star-icon :height="32" :width="32" :color="details.starsColor[0].value" />
-        <star-icon :height="24" :width="24" :color="details.starsColor[0].value" />
+        <star-icon :height="24" :width="24" :color="style.starsColor.value" />
+        <star-icon :height="32" :width="32" :color="style.starsColor.value" />
+        <star-icon :height="24" :width="24" :color="style.starsColor.value" />
       </div>
     </template>
 
-    <template v-if="details.titleFields?.length">
+    <template v-if="info.titleFields?.length">
       <div class="title">
-        <h3 contenteditable="true">{{ details.titleFields[0].value }}</h3>
+        <h3 contenteditable="true">{{ info.titleFields[0].value }}</h3>
       </div>
     </template>
 
-    <template v-if="details.inputFields?.length">
+    <template v-if="info.inputFields?.length">
       <input
         class="input"
-        :type="details.inputFields[0].type"
-        :value="details.inputFields[0].value"
-        :placeholder="details.inputFields[0].placeholder"
+        :type="info.inputFields[0].type"
+        :value="info.inputFields[0].value"
+        :placeholder="info.inputFields[0].placeholder"
       />
     </template>
 
-    <template v-if="details.buttons?.length">
+    <template v-if="info.buttons?.length">
       <button
         class="btn"
         contenteditable="true"
-        :style="{ backgroundColor: details.buttons[0].background, color: details.buttons[0].color }"
+        :style="{ backgroundColor: info.buttons[0].background, color: info.buttons[0].color }"
       >
-        {{ details.buttons[0].text }}
+        {{ info.buttons[0].value }}
       </button>
     </template>
 
-    <template v-if="details.subtitleFields?.length">
-      <small class="subtitle" contenteditable="true">{{ details.subtitleFields[0].value }}</small>
+    <template v-if="info.subtitleFields?.length">
+      <small class="subtitle" contenteditable="true">{{ info.subtitleFields[0].value }}</small>
     </template>
   </section>
 </template>
