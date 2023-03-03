@@ -43,7 +43,7 @@ let formValues = reactive({
       id: 'df55d4b5-7512-4134-a096-17ea8c3d36b0',
       type: 'buttons',
       input: '',
-      text: 'signup now',
+      value: 'signup now',
       background: '#000000',
       color: '#ffffff'
     }
