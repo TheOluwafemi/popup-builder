@@ -1,10 +1,6 @@
 <script setup>
-import PopupResult from './PopupResult.vue'
-
 defineProps({
-  show: Boolean,
-  popupInfo: Object,
-  popupStyle: Object
+  show: Boolean
 })
 </script>
 
@@ -17,7 +13,7 @@ defineProps({
         </div>
 
         <div class="modal-body">
-          <popup-result :info="popupInfo" :style="popupStyle" />
+          <slot></slot>
         </div>
 
         <div class="modal-footer">
@@ -49,7 +45,6 @@ defineProps({
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
 
-  
   @media only screen and (min-width: 600px) {
     flex: 0 0 80%;
   }

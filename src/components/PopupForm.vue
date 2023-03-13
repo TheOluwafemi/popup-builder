@@ -3,10 +3,19 @@ import { reactive, onMounted, ref } from 'vue'
 import StarIcon from './icons/StarIcon.vue'
 import CancelIcon from './icons/CancelIcon.vue'
 import PreviewModal from './PreviewModal.vue'
+import PopupResult from './PopupResult.vue'
 import { toast } from 'vue3-toastify'
 import { v4 as uuid } from 'uuid'
+import interact from 'interactjs'
 
 onMounted(() => {
+  loadLocalStore()
+  initInteract(starDraggable.value)
+  initInteract(myDraggable.value)
+})
+
+const loadLocalStore = () => {
+  // check the local storage for saved items
   const storedInfo = localStorage.getItem('form-values')
   const storedStyles = localStorage.getItem('form-styles')
   if (storedInfo) {
@@ -15,32 +24,35 @@ onMounted(() => {
   if (storedStyles) {
     Object.assign(formStyles, JSON.parse(storedStyles))
   }
-})
+}
 
-const showPreviewModal = ref(false)
-const formElements = reactive({
+// to display list of elements, not reactive
+const formElements = {
   value: [
     { name: 'Button Field', type: 'buttonField' },
     { name: 'Title Field', type: 'titleField' },
     { name: 'Subtitle Field', type: 'subtitleField' },
     { name: 'Input Field', type: 'inputField' }
   ]
-})
+}
 
+// to display and hold styles - reactive
 const formStyles = reactive({
   backgroundColor: {
+    id: uuid(),
     name: 'Background Color',
     type: 'backgroundColor',
     active: true,
     value: '#f44336'
   },
-  starsColor: { name: 'Stars', type: 'starsColor', active: true, value: '#b71c1c' }
+  starsColor: { id: uuid(), name: 'Stars', type: 'starsColor', active: true, value: '#b71c1c' }
 })
 
+// to display and hold form elements - reactive
 let formValues = reactive({
   buttons: [
     {
-      id: 'df55d4b5-7512-4134-a096-17ea8c3d36b0',
+      id: uuid(),
       type: 'buttons',
       input: '',
       value: 'signup now',
@@ -50,7 +62,7 @@ let formValues = reactive({
   ],
   inputFields: [
     {
-      id: '5480e410-8392-45b2-af55-d65f262cad22',
+      id: uuid(),
       input: 'email',
       type: 'inputFields',
       value: '',
@@ -59,14 +71,14 @@ let formValues = reactive({
   ],
   titleFields: [
     {
-      id: '716ced3e-d33a-4023-a175-77d0b60d9848',
+      id: uuid(),
       type: 'titleFields',
       value: 'All the text and elements in this popup should be editable and draggable'
     }
   ],
   subtitleFields: [
     {
-      id: '234db1d3-aeb4-4a70-9539-0018289a06f6',
+      id: uuid(),
       type: 'subtitleFields',
       value: 'No credit card required. No Surprises'
     }
@@ -110,7 +122,9 @@ const addTitleField = () => {
   const newTitle = {
     id: uuid(),
     type: 'titleFields',
-    value: 'All the text and elements in this popup should be editable and draggable'
+    value: 'All the text and elements in this popup should be editable and draggable',
+    posX: 0,
+    posY: 0
   }
   formValues['titleFields'].push(newTitle)
 }
@@ -167,6 +181,7 @@ const saveForm = () => {
   })
 }
 
+const showPreviewModal = ref(false)
 const showPreview = () => {
   showPreviewModal.value = true
 }
@@ -186,6 +201,65 @@ const saveField = (event, item) => {
   const content = event.target.innerHTML
   if (content === formValues[item.type][0].value) return
   formValues[item.type][0].value = content
+}
+
+// *** Interaction **
+const starDraggable = ref(null)
+const myDraggable = ref([])
+const pos = reactive({
+  x: 0,
+  y: 0
+})
+
+const initInteract = (allRefs) => {
+  if (Array.isArray(allRefs)) {
+    allRefs.forEach((selector) => {
+      addInteract(selector)
+    })
+  } else {
+    addInteract(allRefs)
+  }
+}
+
+const addInteract = (selector) => {
+  interact(selector).draggable({
+    inertia: true,
+    restrict: {
+      restriction: 'parent',
+      endOnly: true
+    },
+    autoScroll: true,
+    onmove: dragMoveListener,
+    onend: onDragEnd
+  })
+}
+
+const dragMoveListener = (event) => {
+  const target = event.target,
+    // keep the dragged position in the data-x/data-y attributes
+    x = (parseFloat(target.getAttribute('data-x')) || pos.x) + event.dx,
+    y = (parseFloat(target.getAttribute('data-y')) || pos.y) + event.dy
+
+  // translate the element
+  target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
+
+  // update the posiion attributes
+  target.setAttribute('data-x', x)
+  target.setAttribute('data-y', y)
+}
+
+const onDragEnd = (event) => {
+  const target = event.target
+
+  // update property transform for the dragged element
+  const [type, id] = target.id.split('_')
+  if (type === 'starsColor') {
+    formStyles[type].transform = target.style.transform
+  } else {
+    const dragged = formValues[type].filter((item) => item.id === id)
+    dragged[0].transform = target.style.transform
+    console.log(dragged)
+  }
 }
 </script>
 
@@ -268,10 +342,17 @@ const saveField = (event, item) => {
         @dragover.prevent
       >
         <template v-if="formStyles.starsColor.active === true">
-          <div class="stars item" draggable="true" @dragstart="startDrag($event, item.type)">
-            <star-icon :height="24" :width="24" :color="formStyles.starsColor.value" />
-            <star-icon :height="32" :width="32" :color="formStyles.starsColor.value" />
-            <star-icon :height="24" :width="24" :color="formStyles.starsColor.value" />
+          <div
+            class="stars item"
+            ref="starDraggable"
+            :id="`${formStyles.starsColor.type}_${formStyles.starsColor.id}`"
+            :style="{
+              transform: formStyles.starsColor.transform ? formStyles.starsColor.transform : ''
+            }"
+          >
+            <star-icon :height="20" :width="20" :color="formStyles.starsColor.value" />
+            <star-icon :height="28" :width="28" :color="formStyles.starsColor.value" />
+            <star-icon :height="20" :width="20" :color="formStyles.starsColor.value" />
           </div>
         </template>
 
@@ -279,9 +360,10 @@ const saveField = (event, item) => {
           <div
             v-for="(item, index) in formValues.titleFields"
             :key="index"
+            ref="myDraggable"
+            :id="`${item.type}_${item.id}`"
             class="title item"
-            draggable="true"
-            @dragstart="startDrag($event, item.type)"
+            :style="{ transform: item.transform ? item.transform : '' }"
           >
             <h3 @blur="saveField($event, item)" contenteditable="true">{{ item.value }}</h3>
             <cancel-icon class="cancel-btn" color="red" @cancel="removeField(item)" />
@@ -293,32 +375,38 @@ const saveField = (event, item) => {
             v-for="(item, index) in formValues.inputFields"
             :key="index"
             class="input-wrapper item"
+            ref="myDraggable"
+            :id="`${item.type}_${item.id}`"
+            :style="{ transform: item.transform ? item.transform : '' }"
           >
             <input
               class="input"
               :type="item.input"
               :value="item.value"
               :placeholder="item.placeholder"
-              draggable="true"
-              @dragstart="startDrag($event, item.type)"
             />
             <cancel-icon class="cancel-btn" color="red" @cancel="removeField(item)" />
           </div>
         </template>
 
         <template v-if="formValues.buttons?.length">
-          <div v-for="(item, index) in formValues.buttons" :key="index" class="btn-wrapper item">
+          <div
+            v-for="(item, index) in formValues.buttons"
+            :key="index"
+            ref="myDraggable"
+            class="btn-wrapper item"
+            :id="`${item.type}_${item.id}`"
+            :style="{ transform: item.transform ? item.transform : '' }"
+          >
             <button
               class="btn"
               :type="item.input"
-              @blur="saveField($event, item)"
               contenteditable="true"
+              @blur="saveField($event, item)"
               :style="{
                 backgroundColor: item.background,
                 color: item.color
               }"
-              draggable="true"
-              @dragstart="startDrag($event, item.type)"
             >
               {{ item.value }}
             </button>
@@ -330,16 +418,12 @@ const saveField = (event, item) => {
           <div
             v-for="(item, index) in formValues.subtitleFields"
             :key="index"
+            :ref="(el) => myDraggable.push(el)"
             class="subtitle-wrapper item"
+            :id="`${item.type}_${item.id}`"
+            :style="{ transform: item.transform ? item.transform : '' }"
           >
-            <small
-              class="subtitle"
-              @blur="saveField($event, item)"
-              contenteditable="true"
-              draggable="true"
-              @dragstart="startDrag($event, item.type)"
-              >{{ item.value }}</small
-            >
+            <small class="subtitle">{{ item.value }}</small>
             <cancel-icon class="cancel-btn" color="red" @cancel="removeField(item)" />
           </div>
         </template>
@@ -347,12 +431,9 @@ const saveField = (event, item) => {
     </section>
 
     <teleport to="body">
-      <preview-modal
-        :show="showPreviewModal"
-        :popup-info="formValues"
-        :popup-style="formStyles"
-        @close="showPreviewModal = false"
-      />
+      <preview-modal :show="showPreviewModal" @close="showPreviewModal = false">
+        <popup-result :info="formValues" :style="formStyles" />
+      </preview-modal>
     </teleport>
   </section>
 </template>
@@ -468,13 +549,12 @@ const saveField = (event, item) => {
   }
 
   .popup {
-    height: 400px;
-    width: 400px;
-    // overflow: hidden;
+    height: 320px;
+    width: 320px;
+    overflow: hidden;
     position: relative;
     background-color: #f44336;
     border-radius: 100%;
-
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -484,23 +564,17 @@ const saveField = (event, item) => {
     word-wrap: break-word;
     gap: 0.5rem;
 
-    // &::after {
-    //   content: '';
-    //   display: block;
-    //   position: absolute;
-    //   top: -10px;
-    //   bottom: -10px;
-    //   left: -10px;
-    //   right: -10px;
-    //   border-radius: 100%;
-    //   border: 6px solid #f44336;
-    // }
+    @media only screen and (min-width: 1024px) {
+      height: 360px;
+      width: 360px;
+      gap: 1rem;
+    }
 
     .stars {
       display: flex;
       align-items: baseline;
       justify-content: center;
-      gap: 0.8rem;
+      gap: 0.5rem;
     }
 
     .title {
@@ -517,7 +591,8 @@ const saveField = (event, item) => {
     }
     .input-wrapper {
       width: 80%;
-      margin-top: 1rem;
+      // padding: .5rem;
+      // margin-top: 1rem;
 
       .input {
         width: 100%;
@@ -531,7 +606,8 @@ const saveField = (event, item) => {
 
     .btn-wrapper {
       width: 80%;
-      margin-top: 1rem;
+      // margin-top: 1rem;
+      // padding: .5rem;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -550,7 +626,8 @@ const saveField = (event, item) => {
 
     .subtitle-wrapper {
       width: 70%;
-      margin-top: 1rem;
+      // padding: .5rem;
+      // margin-top: 1rem;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -574,6 +651,16 @@ const saveField = (event, item) => {
         right: -5%;
       }
     }
+  }
+}
+
+[contenteditable] {
+  &:hover {
+    cursor: pointer;
+  }
+
+  &:focus {
+    cursor: text;
   }
 }
 </style>

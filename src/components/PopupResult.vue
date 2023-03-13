@@ -19,7 +19,7 @@ const otherStyles = {
     ]"
   >
     <template v-if="style.starsColor.active">
-      <div class="stars">
+      <div class="stars" :style="{ transform: style.starsColor.transform }">
         <star-icon :height="24" :width="24" :color="style.starsColor.value" />
         <star-icon :height="32" :width="32" :color="style.starsColor.value" />
         <star-icon :height="24" :width="24" :color="style.starsColor.value" />
@@ -27,7 +27,12 @@ const otherStyles = {
     </template>
 
     <template v-if="info.titleFields?.length">
-      <div v-for="item, index in info.titleFields" :key="index" class="title">
+      <div
+        v-for="(item, index) in info.titleFields"
+        :key="index"
+        class="title"
+        :style="{ transform: item.transform }"
+      >
         <h3>{{ item.value }}</h3>
       </div>
     </template>
@@ -40,6 +45,7 @@ const otherStyles = {
         :type="item.type"
         :value="item.value"
         :placeholder="item.placeholder"
+        :style="{ transform: item.transform }"
       />
     </template>
 
@@ -48,7 +54,7 @@ const otherStyles = {
         v-for="(item, index) in info.buttons"
         :key="index"
         class="btn"
-        :style="{ backgroundColor: item.background, color: item.color }"
+        :style="{ backgroundColor: item.background, color: item.color, transform: item.transform }"
       >
         {{ item.value }}
       </button>
@@ -59,6 +65,7 @@ const otherStyles = {
         v-for="(item, index) in info.subtitleFields"
         :key="index"
         class="subtitle"
+        :style="{ transform: item.transform }"
         >{{ item.value }}</small
       >
     </template>
@@ -79,6 +86,12 @@ const otherStyles = {
   padding: 0.5rem 0.5rem;
   word-wrap: break-word;
   gap: 0.5rem;
+
+  @media only screen and (min-width: 1024px) {
+    height: 360px;
+    width: 360px;
+    gap: 1rem;
+  }
 
   &:after {
     content: '';
