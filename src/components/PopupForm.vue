@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, ref } from 'vue'
+import { reactive, onMounted, ref, nextTick, onBeforeUpdate, onUpdated } from 'vue'
 import StarIcon from './icons/StarIcon.vue'
 import CancelIcon from './icons/CancelIcon.vue'
 import PreviewModal from './PreviewModal.vue'
@@ -8,9 +8,24 @@ import { toast } from 'vue3-toastify'
 import { v4 as uuid } from 'uuid'
 import interact from 'interactjs'
 
+const starDraggable = ref(null)
+const myDraggable = ref([])
+
+// defineExpose({ myDraggable })
+
 onMounted(() => {
   loadLocalStore()
   initInteract(starDraggable.value)
+  initInteract(myDraggable.value)
+})
+
+// Make sure to reset the refs before each update.
+onBeforeUpdate(() => {
+  myDraggable.value = []
+})
+
+// then run interact js again
+onUpdated(() => {
   initInteract(myDraggable.value)
 })
 
@@ -204,8 +219,6 @@ const saveField = (event, item) => {
 }
 
 // *** Interaction **
-const starDraggable = ref(null)
-const myDraggable = ref([])
 const pos = reactive({
   x: 0,
   y: 0
@@ -228,6 +241,7 @@ const addInteract = (selector) => {
       restriction: 'parent',
       endOnly: true
     },
+    maxPerElement: 100,
     autoScroll: true,
     onmove: dragMoveListener,
     onend: onDragEnd
@@ -258,7 +272,6 @@ const onDragEnd = (event) => {
   } else {
     const dragged = formValues[type].filter((item) => item.id === id)
     dragged[0].transform = target.style.transform
-    console.log(dragged)
   }
 }
 </script>
