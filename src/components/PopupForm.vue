@@ -236,13 +236,17 @@ const initInteract = (allRefs) => {
 
 const addInteract = (selector) => {
   interact(selector).draggable({
-    inertia: true,
+    inertia: {
+      resistance: 50,
+      minSpeed: 200,
+      endSpeed: 100
+    },
     restrict: {
       restriction: 'parent',
       endOnly: true
     },
     maxPerElement: 100,
-    autoScroll: true,
+    autoScroll: false,
     onmove: dragMoveListener,
     onend: onDragEnd
   })
