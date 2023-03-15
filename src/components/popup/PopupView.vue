@@ -204,7 +204,7 @@ const onDragEnd = (event: DragEvent) => {
                     class="subtitle-wrapper item"
                     :style="{ transform: item.transform ? item.transform : '' }"
                 >
-                    <small class="subtitle">{{ item.value }}</small>
+                    <small class="subtitle" contenteditable="true" @blur="saveEditableField($event, item)">{{ item.value }}</small>
                     <cancel-icon class="cancel-btn" color="red" @cancel="removeFormItem(item)" />
                 </div>
             </template>
