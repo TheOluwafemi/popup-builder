@@ -2,6 +2,7 @@
 import { toRefs, ref, onBeforeUpdate, onUpdated, reactive, onMounted } from 'vue'
 import { usePopupStore } from '../../stores/popup'
 import interact from 'interactjs'
+import { InteractEvent } from '@interactjs/types'
 import StarIcon from '../icons/StarIcon.vue'
 import CancelIcon from '../icons/CancelIcon.vue'
 import { FormValueItem, FormValuesType } from '../../types/index'
@@ -10,11 +11,11 @@ const popupStore = usePopupStore()
 const { formStyles } = toRefs(popupStore)
 const { formValues } = toRefs(popupStore)
 
-const starDraggable = ref<HTMLElement>()
-const myDraggable = ref<HTMLElement[]>([])
+const starDraggable = ref<HTMLElement | null>()
+const myDraggable = ref<HTMLElement[] | []>([])
 
 onMounted(() => {
-    initInteract(starDraggable.value)
+    initInteract(starDraggable.value as HTMLElement)
     initInteract(myDraggable.value)
 })
 
@@ -57,8 +58,9 @@ const removeFormItem = (field: FormValueItem) => {
 }
 
 const saveEditableField = (event: FocusEvent, item: FormValueItem) => {
+    const { type } = item
     const content = (event.target as HTMLInputElement).innerHTML
-    if (content === popupStore.formValues[item.type][0].value) return
+    if (content === popupStore.formValues[type as keyof FormValuesType][0].value) return
     popupStore.saveField(content, item)
 }
 
@@ -80,14 +82,16 @@ const initInteract = (allRefs: HTMLElement | HTMLElement[]) => {
 
 const addInteract = (selector: HTMLElement) => {
     interact(selector).draggable({
+        modifiers: [
+            interact.modifiers.restrict({
+                restriction: 'parent',
+                endOnly: true
+            })
+        ],
         inertia: {
             resistance: 50,
             minSpeed: 200,
             endSpeed: 100
-        },
-        restrict: {
-            restriction: 'parent',
-            endOnly: true
         },
         maxPerElement: 100,
         autoScroll: false,
@@ -96,18 +100,21 @@ const addInteract = (selector: HTMLElement) => {
     })
 }
 
-const dragMoveListener = (event: DragEvent) => {
-    const target = event.target as HTMLElement
+const dragMoveListener = (event: InteractEvent) => {
+    const target = event.target
+    const elementId = event.target.id
+    const element = document.getElementById(elementId) as HTMLElement
+
     // keep the dragged position in the data-x/data-y attributes
-    const x = (parseFloat(target.getAttribute('data-x')) || pos.x) + event.dx
-    const y = (parseFloat(target.getAttribute('data-y')) || pos.y) + event.dy
+    const x = (parseFloat(element.getAttribute('data-x') as string) || pos.x) + event.dx
+    const y = (parseFloat(element.getAttribute('data-x') as string) || pos.y) + event.dy
 
     // translate the element
     target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
 
     // update the position attributes
-    target.setAttribute('data-x', x)
-    target.setAttribute('data-y', y)
+    target.setAttribute('data-x', x.toString())
+    target.setAttribute('data-y', y.toString())
 }
 
 const onDragEnd = (event: DragEvent) => {
@@ -181,7 +188,7 @@ const onDragEnd = (event: DragEvent) => {
                 >
                     <button
                         class="btn"
-                        :type="item.input"
+                        type="submit"
                         contenteditable="true"
                         :style="{
                             backgroundColor: item.background,
@@ -200,7 +207,7 @@ const onDragEnd = (event: DragEvent) => {
                     v-for="(item, index) in formValues.subtitleFields"
                     :id="`${item.type}_${item.id}`"
                     :key="index"
-                    :ref="(el) => myDraggable.push(el)"
+                    ref="myDraggable"
                     class="subtitle-wrapper item"
                     :style="{ transform: item.transform ? item.transform : '' }"
                 >
